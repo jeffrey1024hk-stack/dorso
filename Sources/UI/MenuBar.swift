@@ -3,14 +3,16 @@ import SwiftUI
 
 @MainActor
 public class MenuBarManager: NSObject {
-    private var statusItem: NSStatusItem!
+    // 1. Made statusItem public so AppDelegate can position popup windows relative to it
+    public var statusItem: NSStatusItem!
     
-    // Callback closures expected by AppDelegate
+    // 2. Callback closures expected by AppDelegate
     public var onShowAnalytics: (() -> Void)?
     public var onShowSettings: (() -> Void)?
     public var onShowSupport: (() -> Void)?
     public var onRecalibrate: (() -> Void)?
     public var onTogglePause: (() -> Void)?
+    public var onCheckForUpdates: (() -> Void)? // Fixes missing member error
     public var onQuit: (() -> Void)?
     
     public override init() {
@@ -31,7 +33,7 @@ public class MenuBarManager: NSObject {
     public func rebuildMenu() {
         let menu = NSMenu()
         
-        // 1. Dashboard Action
+        // Dashboard & Settings
         let dashboardItem = NSMenuItem(
             title: "Dashboard & Settings...",
             action: #selector(openDashboard),
@@ -42,7 +44,7 @@ public class MenuBarManager: NSObject {
         
         menu.addItem(NSMenuItem.separator())
         
-        // 2. Recalibrate Action
+        // Recalibrate Action
         let recalibrateItem = NSMenuItem(
             title: "Recalibrate Posture",
             action: #selector(handleRecalibrate),
@@ -53,7 +55,18 @@ public class MenuBarManager: NSObject {
         
         menu.addItem(NSMenuItem.separator())
         
-        // 3. Quit Action
+        // Check for Updates
+        let updateItem = NSMenuItem(
+            title: "Check for Updates...",
+            action: #selector(handleCheckForUpdates),
+            keyEquivalent: ""
+        )
+        updateItem.target = self
+        menu.addItem(updateItem)
+        
+        menu.addItem(NSMenuItem.separator())
+        
+        // Quit Action
         let quitItem = NSMenuItem(
             title: "Quit Dorso",
             action: #selector(handleQuit),
@@ -79,6 +92,10 @@ public class MenuBarManager: NSObject {
         } else {
             NotificationCenter.default.post(name: NSNotification.Name("RecalibratePosture"), object: nil)
         }
+    }
+    
+    @objc private func handleCheckForUpdates() {
+        onCheckForUpdates?()
     }
     
     @objc private func handleQuit() {
