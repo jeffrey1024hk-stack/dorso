@@ -1,6 +1,7 @@
 import AppKit
 import SwiftUI
 
+@MainActor
 class MenuBarManager: NSObject {
     private var statusItem: NSStatusItem!
     
@@ -70,7 +71,6 @@ class MenuBarManager: NSObject {
         NSApplication.shared.terminate(nil)
     }
     
-    // Optional status update hook if called by AppDelegate
     func updateStatus(isSlouching: Bool) {
         // Handled dynamically by state binding
     }

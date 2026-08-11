@@ -5,6 +5,7 @@ extension AppDelegate {
     
     private static var dashboardWindow: NSWindow?
 
+    @MainActor
     @objc func showDashboardWindow() {
         if AppDelegate.dashboardWindow == nil {
             let dashboardView = ModernDashboardView()
