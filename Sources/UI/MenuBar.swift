@@ -23,6 +23,13 @@ public class MenuBarManager: NSObject {
         setupMenuBar()
     }
     
+    /// Setup hook called explicitly by AppDelegate
+    public func setup() {
+        if statusItem == nil {
+            setupMenuBar()
+        }
+    }
+    
     private func setupMenuBar() {
         statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)
         
