@@ -15,19 +15,15 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # 1. Resolve dependencies (Sparkle, etc.) before running build script
       - name: Resolve Swift Packages
         run: swift package resolve
 
-      # 2. Make script executable
       - name: Grant execution permissions
         run: chmod +x build.sh
 
-      # 3. Compile app
       - name: Build Dorso App
         run: ./build.sh --dev
 
-      # 4. Package artifact
       - name: Zip App Bundle
         run: ditto -c -k --keepParent build/Dorso.app build/Dorso.app.zip
 
