@@ -1,7 +1,7 @@
 import AppKit
 import SwiftUI
 
-class MenuBarManager: NSObject {
+class MenuBar: NSObject {
     private var statusItem: NSStatusItem!
     private weak var appDelegate: AppDelegate?
     
