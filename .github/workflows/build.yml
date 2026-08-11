@@ -1,0 +1,38 @@
+name: Build macOS App
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: macos-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # 1. Resolve dependencies (Sparkle, etc.) before running build script
+      - name: Resolve Swift Packages
+        run: swift package resolve
+
+      # 2. Make script executable
+      - name: Grant execution permissions
+        run: chmod +x build.sh
+
+      # 3. Compile app
+      - name: Build Dorso App
+        run: ./build.sh --dev
+
+      # 4. Package artifact
+      - name: Zip App Bundle
+        run: ditto -c -k --keepParent build/Dorso.app build/Dorso.app.zip
+
+      - name: Upload Build Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: Dorso-macOS-App
+          path: build/Dorso.app.zip
