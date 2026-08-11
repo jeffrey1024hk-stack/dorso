@@ -122,6 +122,18 @@ public class MenuBarManager: NSObject {
         // Dynamic shortcut binding
     }
     
+    public func updateEnabledState(_ isEnabled: Bool) {
+        // Dynamic enable/disable state update
+    }
+    
+    public func updateRecalibrateEnabled(_ canRecalibrate: Bool) {
+        // Dynamic recalibrate menu item state update
+    }
+    
+    public func updateStatus(text: String? = nil, icon: Any? = nil) {
+        // Dynamic text and icon update
+    }
+    
     public func updateStatus(isSlouching: Bool = false) {
         // Dynamic state update hook
     }
