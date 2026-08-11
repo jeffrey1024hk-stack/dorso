@@ -1,12 +1,10 @@
 import AppKit
 import SwiftUI
 
-class MenuBar: NSObject {
+class MenuBarManager: NSObject {
     private var statusItem: NSStatusItem!
-    private weak var appDelegate: AppDelegate?
     
-    init(appDelegate: AppDelegate) {
-        self.appDelegate = appDelegate
+    override init() {
         super.init()
         setupMenuBar()
     }
@@ -27,10 +25,10 @@ class MenuBar: NSObject {
         // Opens the new Notability SwiftUI Dashboard
         let dashboardItem = NSMenuItem(
             title: "Dashboard & Settings...",
-            action: #selector(AppDelegate.showDashboardWindow),
+            action: #selector(openDashboard),
             keyEquivalent: "d"
         )
-        dashboardItem.target = appDelegate
+        dashboardItem.target = self
         menu.addItem(dashboardItem)
         
         menu.addItem(NSMenuItem.separator())
@@ -58,11 +56,22 @@ class MenuBar: NSObject {
         statusItem.menu = menu
     }
     
+    @objc private func openDashboard() {
+        if let appDelegate = NSApp.delegate as? AppDelegate {
+            appDelegate.showDashboardWindow()
+        }
+    }
+    
     @objc private func handleRecalibrate() {
         NotificationCenter.default.post(name: NSNotification.Name("RecalibratePosture"), object: nil)
     }
     
     @objc private func handleQuit() {
         NSApplication.shared.terminate(nil)
+    }
+    
+    // Optional status update hook if called by AppDelegate
+    func updateStatus(isSlouching: Bool) {
+        // Handled dynamically by state binding
     }
 }
