@@ -2,18 +2,18 @@ import AppKit
 import SwiftUI
 
 @MainActor
-class MenuBarManager: NSObject {
+public class MenuBarManager: NSObject {
     private var statusItem: NSStatusItem!
     
     // Callback closures expected by AppDelegate
-    var onShowAnalytics: (() -> Void)?
-    var onShowSettings: (() -> Void)?
-    var onShowSupport: (() -> Void)?
-    var onRecalibrate: (() -> Void)?
-    var onTogglePause: (() -> Void)?
-    var onQuit: (() -> Void)?
+    public var onShowAnalytics: (() -> Void)?
+    public var onShowSettings: (() -> Void)?
+    public var onShowSupport: (() -> Void)?
+    public var onRecalibrate: (() -> Void)?
+    public var onTogglePause: (() -> Void)?
+    public var onQuit: (() -> Void)?
     
-    override init() {
+    public override init() {
         super.init()
         setupMenuBar()
     }
@@ -28,10 +28,10 @@ class MenuBarManager: NSObject {
         rebuildMenu()
     }
     
-    func rebuildMenu() {
+    public func rebuildMenu() {
         let menu = NSMenu()
         
-        // 1. Opens the new Notability SwiftUI Dashboard
+        // 1. Dashboard Action
         let dashboardItem = NSMenuItem(
             title: "Dashboard & Settings...",
             action: #selector(openDashboard),
@@ -66,12 +66,11 @@ class MenuBarManager: NSObject {
     }
     
     @objc private func openDashboard() {
-        // Open the modern Dashboard UI
         if let appDelegate = NSApp.delegate as? AppDelegate {
             appDelegate.showDashboardWindow()
         }
-        // Execute AppDelegate callback if set
         onShowAnalytics?()
+        onShowSettings?()
     }
     
     @objc private func handleRecalibrate() {
@@ -90,12 +89,11 @@ class MenuBarManager: NSObject {
         }
     }
     
-    // Status update helper hooks called by AppDelegate
-    func updateStatus(isSlouching: Bool = false) {
-        // Handled dynamically by state binding
+    public func updateStatus(isSlouching: Bool = false) {
+        // Dynamic state update hook
     }
     
-    func updateStatus(isSlouching: Bool = false, isPaused: Bool = false) {
-        // Fallback for multi-parameter status updates
+    public func updateStatus(isSlouching: Bool = false, isPaused: Bool = false) {
+        // Dynamic state update hook fallback
     }
 }
