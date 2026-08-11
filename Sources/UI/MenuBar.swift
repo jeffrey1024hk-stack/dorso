@@ -3,16 +3,19 @@ import SwiftUI
 
 @MainActor
 public class MenuBarManager: NSObject {
-    // 1. Made statusItem public so AppDelegate can position popup windows relative to it
+    // Public statusItem for popup window anchoring in AppDelegate
     public var statusItem: NSStatusItem!
     
-    // 2. Callback closures expected by AppDelegate
+    // Callback closures expected by AppDelegate
+    public var onToggleEnabled: (() -> Void)?
+    public var onOpenSettings: (() -> Void)?
+    public var onOpenSupport: (() -> Void)?
     public var onShowAnalytics: (() -> Void)?
     public var onShowSettings: (() -> Void)?
     public var onShowSupport: (() -> Void)?
     public var onRecalibrate: (() -> Void)?
     public var onTogglePause: (() -> Void)?
-    public var onCheckForUpdates: (() -> Void)? // Fixes missing member error
+    public var onCheckForUpdates: (() -> Void)?
     public var onQuit: (() -> Void)?
     
     public override init() {
@@ -82,8 +85,9 @@ public class MenuBarManager: NSObject {
         if let appDelegate = NSApp.delegate as? AppDelegate {
             appDelegate.showDashboardWindow()
         }
-        onShowAnalytics?()
+        onOpenSettings?()
         onShowSettings?()
+        onShowAnalytics?()
     }
     
     @objc private func handleRecalibrate() {
@@ -104,6 +108,11 @@ public class MenuBarManager: NSObject {
         } else {
             NSApplication.shared.terminate(nil)
         }
+    }
+    
+    // Helper hooks called by AppDelegate
+    public func updateShortcut(enabled: Bool, shortcut: Any? = nil) {
+        // Dynamic shortcut binding
     }
     
     public func updateStatus(isSlouching: Bool = false) {
