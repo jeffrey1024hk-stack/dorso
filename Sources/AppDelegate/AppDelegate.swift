@@ -20,9 +20,6 @@ extension MenuBarIconType {
         }
     }
 }
-@objc public func showDashboardWindow() {
-    openSettings()
-} 
 // MARK: - App Delegate
 
 @MainActor
@@ -686,7 +683,12 @@ extension AppDelegate {
         openSettings()
     }
     
-    @objc public func openSettings() {
+   @objc public func showDashboardWindow() {
+    openSettings()
+}
+
+@objc public func openSettings() {
+    if AppDelegate.dashboardWindow == nil {
         let dashboardView = ModernDashboardView()
         let hostingController = NSHostingController(rootView: dashboardView)
         
@@ -704,8 +706,10 @@ extension AppDelegate {
         window.titlebarAppearsTransparent = true
         window.isMovableByWindowBackground = true
         
-        let controller = NSWindowController(window: window)
-        controller.showWindow(nil)
-        NSApp.activate(ignoringOtherApps: true)
+        AppDelegate.dashboardWindow = window
     }
+    
+    AppDelegate.dashboardWindow?.makeKeyAndOrderFront(nil)
+    NSApp.activate(ignoringOtherApps: true)
+}
 }
