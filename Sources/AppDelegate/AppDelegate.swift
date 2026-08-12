@@ -677,3 +677,35 @@ public class AppDelegate: NSObject, NSApplicationDelegate {
         cameraDetector.baseFrameInterval = 1.0 / activeDetectionMode.frameRate
     }
 }
+import SwiftUI
+
+// MARK: - Modern Dashboard Extension
+extension AppDelegate {
+    
+    @objc public func showDashboardWindow() {
+        openSettings()
+    }
+    
+    @objc public func openSettings() {
+        let dashboardView = ModernDashboardView()
+        let hostingController = NSHostingController(rootView: dashboardView)
+        
+        let window = NSWindow(
+            contentRect: NSRect(x: 0, y: 0, width: 850, height: 600),
+            styleMask: [.titled, .closable, .miniaturizable, .resizable, .fullSizeContentView],
+            backing: .buffered,
+            defer: false
+        )
+        
+        window.center()
+        window.contentViewController = hostingController
+        window.title = "Dorso Dashboard"
+        window.isReleasedWhenClosed = false
+        window.titlebarAppearsTransparent = true
+        window.isMovableByWindowBackground = true
+        
+        let controller = NSWindowController(window: window)
+        controller.showWindow(nil)
+        NSApp.activate(ignoringOtherApps: true)
+    }
+}
