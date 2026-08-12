@@ -3,6 +3,7 @@ import AVFoundation
 import Vision
 import os.log
 import ComposableArchitecture
+import SwiftUI
 
 private let log = OSLog(subsystem: "com.thelazydeveloper.dorso", category: "AppDelegate")
 private var dashboardWindow: NSWindow?
@@ -594,7 +595,14 @@ public class AppDelegate: NSObject, NSApplicationDelegate {
 }
 
 // MARK: - Helpers & Compatibility Extensions
+// MARK: - Helpers & Compatibility Extensions
 extension AppDelegate {
+
+    @objc func quit() {
+        cameraDetector.stop()
+        airPodsDetector.stop()
+        NSApplication.shared.terminate(nil)
+    }
 
     @objc func showSupport() {
         supportWindowController.showSupport(appDelegate: self, fromStatusItem: menuBarManager.statusItem)
