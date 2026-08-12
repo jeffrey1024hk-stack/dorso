@@ -34,41 +34,14 @@ public class MenuBarManager: NSObject {
     }
     
     private func setupMenuBar() {
-    menuBarManager.setup()
-    menuBarManager.updateShortcut(enabled: toggleShortcutEnabled, shortcut: toggleShortcut)
-
-    menuBarManager.onToggleEnabled = { [weak self] in
-        Task { @MainActor in
-            await self?.toggleEnabled()
+        statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)
+        
+        if let button = statusItem.button {
+            button.image = NSImage(systemSymbolName: "figure.walk", accessibilityDescription: "Dorso")
         }
+        
+        rebuildMenu()
     }
-
-    menuBarManager.onOpenSettings = { [weak self] in
-        Task { @MainActor in
-            self?.openSettings()
-        }
-    }
-
-    menuBarManager.onShowSettings = { [weak self] in
-        Task { @MainActor in
-            self?.openSettings()
-        }
-    }
-
-    menuBarManager.onOpenSupport = { [weak self] in
-        Task { @MainActor in
-            self?.showSupport()
-        }
-    }
-
-    #if !APP_STORE
-    menuBarManager.onCheckForUpdates = { [weak self] in
-        Task { @MainActor in
-            self?.updaterManager?.checkForUpdates()
-        }
-    }
-    #endif
-}
     
     public func rebuildMenu() {
         let menu = NSMenu()
