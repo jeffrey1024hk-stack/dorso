@@ -674,6 +674,7 @@ public class AppDelegate: NSObject, NSApplicationDelegate {
         cameraDetector.baseFrameInterval = 1.0 / activeDetectionMode.frameRate
     }
 }
+
 import SwiftUI
 
 // MARK: - Modern Dashboard Extension
@@ -682,7 +683,4 @@ extension AppDelegate {
     @objc public func showDashboardWindow() {
         openSettings()
     }
-    
-   @objc public func showDashboardWindow() {
-    openSettings()
 }
