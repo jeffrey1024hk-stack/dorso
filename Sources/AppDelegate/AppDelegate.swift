@@ -675,12 +675,4 @@ public class AppDelegate: NSObject, NSApplicationDelegate {
     }
 }
 
-import SwiftUI
 
-// MARK: - Modern Dashboard Extension
-extension AppDelegate {
-    
-    @objc public func showDashboardWindow() {
-        openSettings()
-    }
-}
