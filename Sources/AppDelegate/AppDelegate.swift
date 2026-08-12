@@ -5,6 +5,7 @@ import os.log
 import ComposableArchitecture
 
 private let log = OSLog(subsystem: "com.thelazydeveloper.dorso", category: "AppDelegate")
+private var dashboardWindow: NSWindow?
 
 // MARK: - MenuBarIconType to MenuBarIcon Conversion
 
@@ -19,7 +20,9 @@ extension MenuBarIconType {
         }
     }
 }
-
+@objc public func showDashboardWindow() {
+    openSettings()
+} 
 // MARK: - App Delegate
 
 @MainActor
@@ -566,9 +569,31 @@ public class AppDelegate: NSObject, NSApplicationDelegate {
         NSApp.activate(ignoringOtherApps: true)
     }
 
-    func openSettings() {
-        settingsWindowController.showSettings(appDelegate: self, fromStatusItem: menuBarManager.statusItem)
+    @objc public func openSettings() {
+    if dashboardWindow == nil {
+        let dashboardView = ModernDashboardView()
+        let hostingController = NSHostingController(rootView: dashboardView)
+        
+        let window = NSWindow(
+            contentRect: NSRect(x: 0, y: 0, width: 850, height: 600),
+            styleMask: [.titled, .closable, .miniaturizable, .resizable, .fullSizeContentView],
+            backing: .buffered,
+            defer: false
+        )
+        
+        window.center()
+        window.contentViewController = hostingController
+        window.title = "Dorso Dashboard"
+        window.isReleasedWhenClosed = false
+        window.titlebarAppearsTransparent = true
+        window.isMovableByWindowBackground = true
+        
+        self.dashboardWindow = window
     }
+    
+    dashboardWindow?.makeKeyAndOrderFront(nil)
+    NSApp.activate(ignoringOtherApps: true)
+}
 
     func showSupport() {
         supportWindowController.showSupport(appDelegate: self, fromStatusItem: menuBarManager.statusItem)

@@ -6,6 +6,9 @@ public class MenuBarManager: NSObject {
     // Public statusItem for popup window anchoring in AppDelegate
     public var statusItem: NSStatusItem!
     
+    // Window reference to keep ModernDashboardView alive
+    private var dashboardWindow: NSWindow?
+    
     // Callback closures expected by AppDelegate
     public var onToggleEnabled: (() -> Void)?
     public var onOpenSettings: (() -> Void)?
@@ -31,19 +34,46 @@ public class MenuBarManager: NSObject {
     }
     
     private func setupMenuBar() {
-        statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)
-        
-        if let button = statusItem.button {
-            button.image = NSImage(systemSymbolName: "figure.walk", accessibilityDescription: "Dorso")
+    menuBarManager.setup()
+    menuBarManager.updateShortcut(enabled: toggleShortcutEnabled, shortcut: toggleShortcut)
+
+    menuBarManager.onToggleEnabled = { [weak self] in
+        Task { @MainActor in
+            await self?.toggleEnabled()
         }
-        
-        rebuildMenu()
     }
+
+    menuBarManager.onOpenSettings = { [weak self] in
+        Task { @MainActor in
+            self?.openSettings()
+        }
+    }
+
+    menuBarManager.onShowSettings = { [weak self] in
+        Task { @MainActor in
+            self?.openSettings()
+        }
+    }
+
+    menuBarManager.onOpenSupport = { [weak self] in
+        Task { @MainActor in
+            self?.showSupport()
+        }
+    }
+
+    #if !APP_STORE
+    menuBarManager.onCheckForUpdates = { [weak self] in
+        Task { @MainActor in
+            self?.updaterManager?.checkForUpdates()
+        }
+    }
+    #endif
+}
     
     public func rebuildMenu() {
         let menu = NSMenu()
         
-        // Dashboard & Settings
+        // 1. Dashboard & Settings
         let dashboardItem = NSMenuItem(
             title: "Dashboard & Settings...",
             action: #selector(openDashboard),
@@ -54,7 +84,7 @@ public class MenuBarManager: NSObject {
         
         menu.addItem(NSMenuItem.separator())
         
-        // Recalibrate Action
+        // 2. Recalibrate Action
         let recalibrateItem = NSMenuItem(
             title: "Recalibrate Posture",
             action: #selector(handleRecalibrate),
@@ -65,7 +95,7 @@ public class MenuBarManager: NSObject {
         
         menu.addItem(NSMenuItem.separator())
         
-        // Check for Updates
+        // 3. Check for Updates
         let updateItem = NSMenuItem(
             title: "Check for Updates...",
             action: #selector(handleCheckForUpdates),
@@ -76,7 +106,7 @@ public class MenuBarManager: NSObject {
         
         menu.addItem(NSMenuItem.separator())
         
-        // Quit Action
+        // 4. Quit Action
         let quitItem = NSMenuItem(
             title: "Quit Dorso",
             action: #selector(handleQuit),
@@ -88,13 +118,31 @@ public class MenuBarManager: NSObject {
         statusItem.menu = menu
     }
     
-    @objc private func openDashboard() {
-        if let appDelegate = NSApp.delegate as? AppDelegate {
-            appDelegate.showDashboardWindow()
+    /// Opens the modern SwiftUI Dashboard window
+    @objc public func openDashboard() {
+        if dashboardWindow == nil {
+            let dashboardView = ModernDashboardView()
+            let hostingController = NSHostingController(rootView: dashboardView)
+            
+            let window = NSWindow(
+                contentRect: NSRect(x: 0, y: 0, width: 850, height: 600),
+                styleMask: [.titled, .closable, .miniaturizable, .resizable, .fullSizeContentView],
+                backing: .buffered,
+                defer: false
+            )
+            
+            window.center()
+            window.contentViewController = hostingController
+            window.title = "Dorso Dashboard"
+            window.isReleasedWhenClosed = false
+            window.titlebarAppearsTransparent = true
+            window.isMovableByWindowBackground = true
+            
+            self.dashboardWindow = window
         }
-        onOpenSettings?()
-        onShowSettings?()
-        onShowAnalytics?()
+        
+        dashboardWindow?.makeKeyAndOrderFront(nil)
+        NSApp.activate(ignoringOtherApps: true)
     }
     
     @objc private func handleRecalibrate() {
@@ -118,27 +166,10 @@ public class MenuBarManager: NSObject {
     }
     
     // Helper hooks called by AppDelegate
-    public func updateShortcut(enabled: Bool, shortcut: Any? = nil) {
-        // Dynamic shortcut binding
-    }
-    
-    public func updateEnabledState(_ isEnabled: Bool) {
-        // Dynamic enable/disable state update
-    }
-    
-    public func updateRecalibrateEnabled(_ canRecalibrate: Bool) {
-        // Dynamic recalibrate menu item state update
-    }
-    
-    public func updateStatus(text: String? = nil, icon: Any? = nil) {
-        // Dynamic text and icon update
-    }
-    
-    public func updateStatus(isSlouching: Bool = false) {
-        // Dynamic state update hook
-    }
-    
-    public func updateStatus(isSlouching: Bool = false, isPaused: Bool = false) {
-        // Dynamic state update hook fallback
-    }
+    public func updateShortcut(enabled: Bool, shortcut: Any? = nil) {}
+    public func updateEnabledState(_ isEnabled: Bool) {}
+    public func updateRecalibrateEnabled(_ canRecalibrate: Bool) {}
+    public func updateStatus(text: String? = nil, icon: Any? = nil) {}
+    public func updateStatus(isSlouching: Bool = false) {}
+    public func updateStatus(isSlouching: Bool = false, isPaused: Bool = false) {}
 }
