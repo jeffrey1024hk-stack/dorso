@@ -689,5 +689,74 @@ public class AppDelegate: NSObject, NSApplicationDelegate {
         cameraDetector.baseFrameInterval = 1.0 / activeDetectionMode.frameRate
     }
 }
+import AppKit
+import AVFoundation
 
+// MARK: - Helpers & Compatibility Extensions
+extension AppDelegate {
+
+    @objc func showSupport() {
+        supportWindowController.showSupport(appDelegate: self, fromStatusItem: menuBarManager.statusItem)
+    }
+
+    func openSupportPage() {
+        guard let url = URL(string: "https://buymeacoffee.com/tjohnell") else { return }
+
+        if let openSupportURLHandler = self.openSupportURLHandler {
+            openSupportURLHandler(url)
+            return
+        }
+
+        NSWorkspace.shared.open(url)
+    }
+
+    // MARK: - Activation Policy
+
+    func restoreAccessoryActivationPolicyIfNeeded(excluding windowToIgnore: NSWindow? = nil) {
+        guard !showInDock else { return }
+
+        let hasOtherVisibleTitledWindows = NSApp.windows.contains { window in
+            guard window != windowToIgnore else { return false }
+            return window.isVisible && !window.isMiniaturized && window.styleMask.contains(.titled)
+        }
+
+        if !hasOtherVisibleTitledWindows {
+            NSApp.setActivationPolicy(.accessory)
+        }
+    }
+
+    func withAccessoryActivationPolicy(_ block: () -> Void) {
+        let current = NSApp.activationPolicy()
+        if current != .accessory {
+            let previousKeyWindow = NSApp.keyWindow
+            NSApp.setActivationPolicy(.accessory)
+            block()
+            NSApp.setActivationPolicy(current)
+            if let previousKeyWindow {
+                NSApp.activate(ignoringOtherApps: true)
+                previousKeyWindow.makeKeyAndOrderFront(nil)
+            }
+        } else {
+            block()
+        }
+    }
+
+    // MARK: - Camera Management
+
+    func getAvailableCameras() -> [AVCaptureDevice] {
+        return cameraDetector.getAvailableCameras()
+    }
+
+    func restartCamera() {
+        guard activeTrackingSource == .camera, selectedCameraID != nil else { return }
+
+        Task { @MainActor in
+            await self.applyCameraSelectionTransition()
+        }
+    }
+
+    func applyDetectionMode() {
+        cameraDetector.baseFrameInterval = 1.0 / activeDetectionMode.frameRate
+    }
+}
 
