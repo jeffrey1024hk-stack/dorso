@@ -567,7 +567,7 @@ public class AppDelegate: NSObject, NSApplicationDelegate {
     }
 
     @objc public func openSettings() {
-    if dashboardWindow == nil {
+    if AppDelegate.dashboardWindow == nil {
         let dashboardView = ModernDashboardView()
         let hostingController = NSHostingController(rootView: dashboardView)
         
@@ -577,6 +577,21 @@ public class AppDelegate: NSObject, NSApplicationDelegate {
             backing: .buffered,
             defer: false
         )
+        
+        window.center()
+        window.contentViewController = hostingController
+        window.title = "Dorso Dashboard"
+        window.isReleasedWhenClosed = false
+        window.titlebarAppearsTransparent = true
+        window.isMovableByWindowBackground = true
+        
+        AppDelegate.dashboardWindow = window
+    }
+    
+    // Prefix with AppDelegate. so Swift accesses the static property
+    AppDelegate.dashboardWindow?.makeKeyAndOrderFront(nil)
+    NSApp.activate(ignoringOtherApps: true)
+}
         
         window.center()
         window.contentViewController = hostingController
