@@ -3,7 +3,7 @@ import SwiftUI
 
 extension AppDelegate {
     
-    private static var dashboardWindow: NSWindow?
+    static var dashboardWindow: NSWindow?
 
     @MainActor
     @objc func showDashboardWindow() {
