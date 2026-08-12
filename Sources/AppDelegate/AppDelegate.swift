@@ -567,130 +567,31 @@ public class AppDelegate: NSObject, NSApplicationDelegate {
     }
 
     @objc public func openSettings() {
-    if AppDelegate.dashboardWindow == nil {
-        let dashboardView = ModernDashboardView()
-        let hostingController = NSHostingController(rootView: dashboardView)
-        
-        let window = NSWindow(
-            contentRect: NSRect(x: 0, y: 0, width: 850, height: 600),
-            styleMask: [.titled, .closable, .miniaturizable, .resizable, .fullSizeContentView],
-            backing: .buffered,
-            defer: false
-        )
-        
-        window.center()
-        window.contentViewController = hostingController
-        window.title = "Dorso Dashboard"
-        window.isReleasedWhenClosed = false
-        window.titlebarAppearsTransparent = true
-        window.isMovableByWindowBackground = true
-        
-        AppDelegate.dashboardWindow = window
-    }
-    
-    // Prefix with AppDelegate. so Swift accesses the static property
-    AppDelegate.dashboardWindow?.makeKeyAndOrderFront(nil)
-    NSApp.activate(ignoringOtherApps: true)
-}
-        
-        window.center()
-        window.contentViewController = hostingController
-        window.title = "Dorso Dashboard"
-        window.isReleasedWhenClosed = false
-        window.titlebarAppearsTransparent = true
-        window.isMovableByWindowBackground = true
-        
-        self.dashboardWindow = window
-    }
-    
-    dashboardWindow?.makeKeyAndOrderFront(nil)
-    NSApp.activate(ignoringOtherApps: true)
-}
-
-    func showSupport() {
-        supportWindowController.showSupport(appDelegate: self, fromStatusItem: menuBarManager.statusItem)
-    }
-
-    private func quit() {
-        cameraDetector.stop()
-        airPodsDetector.stop()
-        NSApplication.shared.terminate(nil)
-    }
-
-    func openSupportPage() {
-        guard let url = URL(string: "https://buymeacoffee.com/tjohnell") else { return }
-
-        if let openSupportURLHandler {
-            openSupportURLHandler(url)
-            return
+        if AppDelegate.dashboardWindow == nil {
+            let dashboardView = ModernDashboardView()
+            let hostingController = NSHostingController(rootView: dashboardView)
+            
+            let window = NSWindow(
+                contentRect: NSRect(x: 0, y: 0, width: 850, height: 600),
+                styleMask: [.titled, .closable, .miniaturizable, .resizable, .fullSizeContentView],
+                backing: .buffered,
+                defer: false
+            )
+            
+            window.center()
+            window.contentViewController = hostingController
+            window.title = "Dorso Dashboard"
+            window.isReleasedWhenClosed = false
+            window.titlebarAppearsTransparent = true
+            window.isMovableByWindowBackground = true
+            
+            AppDelegate.dashboardWindow = window
         }
-
-        NSWorkspace.shared.open(url)
-    }
-
-    // MARK: - Activation Policy
-
-    func restoreAccessoryActivationPolicyIfNeeded(excluding windowToIgnore: NSWindow? = nil) {
-        guard !showInDock else { return }
-
-        // Only titled windows (Settings, Support, Analytics, Onboarding) justify
-        // staying .regular. The borderless overlay windows are visible for the
-        // app's entire lifetime, so counting them here would keep the app in
-        // the Dock and Cmd+Tab switcher forever after the first window opened.
-        let hasOtherVisibleTitledWindows = NSApp.windows.contains { window in
-            guard window != windowToIgnore else { return false }
-            return window.isVisible && !window.isMiniaturized && window.styleMask.contains(.titled)
-        }
-
-        if !hasOtherVisibleTitledWindows {
-            NSApp.setActivationPolicy(.accessory)
-        }
-    }
-
-    /// Runs `block` while the app is temporarily `.accessory`, then restores
-    /// the previous policy. Overlay and calibration windows only get Space
-    /// semantics that render over a fullscreen app if they're created while
-    /// Dorso is `.accessory` — a `.regular` context (onboarding/Settings open)
-    /// poisons their Space association. After the policy flip back we also
-    /// re-front whatever window was key beforehand, so a visible
-    /// Settings/Onboarding window doesn't get pushed behind other apps
-    /// when the block runs while it was in the foreground.
-    func withAccessoryActivationPolicy(_ block: () -> Void) {
-        let current = NSApp.activationPolicy()
-        if current != .accessory {
-            let previousKeyWindow = NSApp.keyWindow
-            NSApp.setActivationPolicy(.accessory)
-            block()
-            NSApp.setActivationPolicy(current)
-            if let previousKeyWindow {
-                NSApp.activate(ignoringOtherApps: true)
-                previousKeyWindow.makeKeyAndOrderFront(nil)
-            }
-        } else {
-            block()
-        }
-    }
-
-    // MARK: - Camera Management (for Settings compatibility)
-
-    func getAvailableCameras() -> [AVCaptureDevice] {
-        return cameraDetector.getAvailableCameras()
-    }
-
-    func restartCamera() {
-        guard activeTrackingSource == .camera, selectedCameraID != nil else { return }
-
-        Task { @MainActor in
-            await self.applyCameraSelectionTransition()
-        }
-    }
-
-    func applyDetectionMode() {
-        cameraDetector.baseFrameInterval = 1.0 / activeDetectionMode.frameRate
+        
+        AppDelegate.dashboardWindow?.makeKeyAndOrderFront(nil)
+        NSApp.activate(ignoringOtherApps: true)
     }
 }
-import AppKit
-import AVFoundation
 
 // MARK: - Helpers & Compatibility Extensions
 extension AppDelegate {
@@ -759,4 +660,3 @@ extension AppDelegate {
         cameraDetector.baseFrameInterval = 1.0 / activeDetectionMode.frameRate
     }
 }
-
